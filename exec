@@ -1,0 +1,11 @@
+container_name="pygrator_application"
+
+if [ $1 == "tests" ]; then
+    docker exec -it "$container_name" bash -c "cd pygrator/src && pytest tests/"
+elif [ $1 == "lint" ]; then
+    docker exec -it "$container_name" bash -c "cd pygrator/src && flake8 ."
+elif [ $1 == "coverage" ]; then
+    docker exec -it "$container_name" bash -c "cd pygrator/src && coverage run -m pytest tests/ && coverage report"
+else
+    echo "Command not found"
+fi

@@ -1,0 +1,24 @@
+version: "3.4"
+services:
+  database:
+    image: postgres:14.2
+    environment:
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_USER=root
+      - POSTGRES_DB=pg_app
+    networks:
+      - application-network
+  application:
+    image: python:3.10.5-bullseye
+    volumes:
+      - .:/pygrator/
+    depends_on:
+      - database
+    command: bash -c "cd pygrator/src && pip install -r requirements.txt && tail -F file_not_found"
+    tty: true
+    stdin_open: true
+    networks:
+      - application-network
+    container_name: pygrator_application
+networks:
+  application-network: {}
