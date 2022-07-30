@@ -9,5 +9,13 @@ class Database:
         self.migration_path = kwargs.get("migration_path", "migrations/")
 
     async def update_migration_file(self, migration_file: str, model: Model):
-        with open(migration_file, "a+") as file:
-            json.dump(await model.to_dict(), file)
+        with open(migration_file, "r") as file:
+            try:
+                current_content = json.loads(file.read())
+            except Exception:
+                current_content = []
+
+        if not len(current_content) or current_content[-1]["model"] != await model.to_dict():
+            with open(migration_file, "a+") as file:
+                current_content.append({"model": await model.to_dict()})
+                json.dump(current_content, file)

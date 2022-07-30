@@ -1,4 +1,5 @@
 import json
+import tempfile
 
 from database import Database
 from field import Field, Integer
@@ -8,14 +9,24 @@ import pytest
 
 
 @pytest.mark.asyncio
-async def test_update_migration_file(tmp_path):
+async def test_update_migration_file():
     database = Database()
+    migration_file = tempfile.NamedTemporaryFile()
     model = Model({
-        "id": Field(field_type=Integer)
+        "id": Field(field_type=Integer())
     })
+
     # Should write data to the file
-    migration_file = tmp_path / 'new_table.json'
-    await database.update_migration_file(migration_file=migration_file, model=model)
-    migration_data = json.loads(migration_file.read_text())
-    assert 'id' in migration_data
-    assert 'Integer' in migration_data['id']['field_type']
+    file_name = str(migration_file.name)
+    await database.update_migration_file(migration_file=file_name, model=model)
+    migration_file.seek(0)
+    migration_data = json.loads(migration_file.read())
+    assert len(migration_data) == 1
+    assert 'id' in migration_data[0]['model']
+    assert 'Integer' in migration_data[0]['model']['id']['field_type']
+
+    # The model is exactly the same, so it should not update the file
+    await database.update_migration_file(migration_file=file_name, model=model)
+    migration_file.seek(0)
+    migration_data = json.loads(migration_file.read())
+    assert len(migration_data) == 1
