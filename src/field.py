@@ -20,8 +20,6 @@ class Field:
     @staticmethod
     async def from_str(data: str):
         field_type = data['field_type'].replace('<type ', '').replace('>', '')
-        field_type = field_type.split(".")
-        field_type = field_type[-1]
         return Field(field_type=Field.convert_str_to_class(field_type))
 
 
