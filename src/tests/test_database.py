@@ -1,9 +1,11 @@
-import pytest
 import json
 
 from database import Database
 from field import Field
 from model import Model
+
+import pytest
+
 
 @pytest.mark.asyncio
 async def test_script_generator(tmp_path):
@@ -18,6 +20,7 @@ async def test_script_generator(tmp_path):
     migration_data = await Model.from_dict(migration_data)
     # Should be possible to read an object reflecting the original Model object
     assert await migration_data.to_dict() == await model.to_dict()
+
 
 @pytest.mark.asyncio
 async def test_type_converter():

@@ -1,5 +1,6 @@
 from field import Field
 
+
 class Model:
     def __init__(self, model):
         self.model = model
