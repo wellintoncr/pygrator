@@ -4,7 +4,6 @@ class Field:
         self.field_type = field_type
 
     async def to_dict(self):
-        print(self.field_type)
         output = {
             'field_type': str(self.field_type)
         }
