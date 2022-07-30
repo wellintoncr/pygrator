@@ -19,7 +19,7 @@ class Field:
 
     @staticmethod
     async def from_str(data: str):
-        field_type = data['field_type'].replace('<class \'', '').replace('\'>', '')
+        field_type = data['field_type'].replace('<type ', '').replace('>', '')
         field_type = field_type.split(".")
         field_type = field_type[-1]
         return Field(field_type=Field.convert_str_to_class(field_type))
@@ -28,16 +28,16 @@ class Field:
 class Integer:
 
     def __str__(self):
-        return '<class \'Integer\'>'
+        return '<type Integer>'
 
 
 class String:
 
     def __str__(self):
-        return '<class \'String\'>'
+        return '<type String>'
 
 
 class Float:
 
     def __str__(self):
-        return '<class \'Float\'>'
+        return '<type Float>'

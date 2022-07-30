@@ -6,21 +6,21 @@ import pytest
 @pytest.mark.asyncio
 async def test_to_dict():
     field = Field(field_type=Integer())
-    assert await field.to_dict() == {"field_type": "<class 'Integer'>"}
+    assert await field.to_dict() == {"field_type": "<type Integer>"}
 
     field = Field(field_type=String())
-    assert await field.to_dict() == {"field_type": "<class 'String'>"}
+    assert await field.to_dict() == {"field_type": "<type String>"}
 
     field = Field(field_type=Float())
-    assert await field.to_dict() == {"field_type": "<class 'Float'>"}
+    assert await field.to_dict() == {"field_type": "<type Float>"}
 
     # New type
     class NewType:
         def __str__(self):
-            return "<class 'NewType'>"
+            return "<type NewType>"
 
     field = Field(field_type=NewType())
-    assert await field.to_dict() == {"field_type": "<class 'NewType'>"}
+    assert await field.to_dict() == {"field_type": "<type NewType>"}
 
 
 @pytest.mark.asyncio
@@ -37,5 +37,5 @@ async def test_convert_str_to_class():
 
 @pytest.mark.asyncio
 async def test_from_str():
-    response = await Field.from_str({'field_type': '<class \'Integer\'>'})
+    response = await Field.from_str({'field_type': '<type Integer>'})
     assert isinstance(response, Field)
