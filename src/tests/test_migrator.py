@@ -153,6 +153,52 @@ async def test_create_script_remove_column():
 
 
 @pytest.mark.asyncio
+async def test_create_script_update_column():
+    migrator = Migrator()
+    migration_file = tempfile.NamedTemporaryFile()
+
+    # Migration file has two entries -> should create table and update two columns
+    content = [
+        {
+            "model": {
+                "id": {
+                    "field_type": "<type Integer>"
+                },
+                "name": {
+                    "field_type": "<type String>"
+                },
+                "amount": {
+                    "field_type": "<type Float>"
+                }
+            }
+        },
+        {
+            "model": {
+                "id": {
+                    "field_type": "<type String>"
+                },
+                "name": {
+                    "field_type": "<type Float>"
+                },
+                "amount": {
+                    "field_type": "<type Float>"
+                }
+            }
+        }
+    ]
+    migration_file.write(bytes(json.dumps(content), 'utf-8'))
+    migration_file.seek(0)
+    with mock.patch("migrator.Migrator.create_table") as create_table_mock:
+        create_table_mock.return_value = "mock"
+        response = await migrator.create_script(
+            migration_file=migration_file.name,
+            table_name="new_table"
+        )
+        expected = "ALTER TABLE new_table ALTER COLUMN id VARCHAR(255),name DECIMAL(10,2);"
+        assert response[1] == expected
+
+
+@pytest.mark.asyncio
 async def test_calculate_delta_new_fields():
     migrator = Migrator()
     # New fields
@@ -182,7 +228,8 @@ async def test_calculate_delta_new_fields():
                 "field_type": "<type Float>"
             }
         },
-        "remove": {}
+        "remove": {},
+        "update": {}
     }
     assert response == expected
 
@@ -217,6 +264,49 @@ async def test_calculate_delta_delete_fields():
                 "field_type": "<type Float>"
             }
         },
-        "add": {}
+        "add": {},
+        "update": {}
+    }
+    assert response == expected
+
+
+@pytest.mark.asyncio
+async def test_calculate_delta_update_fields():
+    migrator = Migrator()
+    # New fields
+    old_model = {
+        "id": {
+            "field_type": "<type Integer>"
+        },
+        "name": {
+            "field_type": "<type String>"
+        },
+        "amount": {
+            "field_type": "<type Float>"
+        }
+    }
+    new_model = {
+        "id": {
+            "field_type": "<type String>"
+        },
+        "name": {
+            "field_type": "<type Float>"
+        },
+        "amount": {
+            "field_type": "<type Float>"
+        }
+    }
+    response = await migrator.calculate_delta(old_model, new_model)
+    expected = {
+        "update": {
+            "id": {
+                "field_type": "<type String>"
+            },
+            "name": {
+                "field_type": "<type Float>"
+            },
+        },
+        "add": {},
+        "remove": {}
     }
     assert response == expected
