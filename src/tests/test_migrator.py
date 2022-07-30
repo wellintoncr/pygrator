@@ -199,6 +199,49 @@ async def test_create_script_update_column():
 
 
 @pytest.mark.asyncio
+async def test_create_script_all_changes():
+    migrator = Migrator()
+    migration_file = tempfile.NamedTemporaryFile()
+
+    # Migration file has two entries -> should create table and
+    # add column, remove column and change column type
+    content = [
+        {
+            "model": {
+                "id": {
+                    "field_type": "<type Integer>"
+                },
+                "name": {
+                    "field_type": "<type String>"
+                }
+            }
+        },
+        {
+            "model": {
+                "id": {
+                    "field_type": "<type String>"
+                },
+                "amount": {
+                    "field_type": "<type Float>"
+                }
+            }
+        }
+    ]
+    migration_file.write(bytes(json.dumps(content), 'utf-8'))
+    migration_file.seek(0)
+    with mock.patch("migrator.Migrator.create_table") as create_table_mock:
+        create_table_mock.return_value = "mock"
+        response = await migrator.create_script(
+            migration_file=migration_file.name,
+            table_name="new_table"
+        )
+        expected_add = "ALTER TABLE new_table ADD amount DECIMAL(10,2);"
+        expected_remove = "ALTER TABLE new_table DROP COLUMN name;"
+        expected_change = "ALTER TABLE new_table ALTER COLUMN id VARCHAR(255);"
+        assert response[1] == expected_add + expected_remove + expected_change
+
+
+@pytest.mark.asyncio
 async def test_calculate_delta_new_fields():
     migrator = Migrator()
     # New fields
