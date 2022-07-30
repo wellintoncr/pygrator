@@ -1,0 +1,15 @@
+#!/bin/bash
+
+echo "Running pre-commit hook"
+container_name="pygrator_application"
+
+if docker exec "$container_name" bash -c "cd pygrator/src && flake8 ."; then
+    if docker exec "$container_name" bash -c "cd pygrator/src && coverage run -m pytest tests/ && coverage report --fail-under=100"; then
+        exit 0
+    else
+        echo "Coverage is under 100%"
+    fi
+else
+    echo "Fix lint validation"
+fi
+exit 1
