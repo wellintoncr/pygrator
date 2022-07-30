@@ -27,14 +27,26 @@ class Integer:
     def __str__(self):
         return '<type Integer>'
 
+    @staticmethod
+    def to_database(backend: str = None):
+        return "INT"
+
 
 class String:
 
     def __str__(self):
         return '<type String>'
 
+    @staticmethod
+    def to_database(backend: str = None):
+        return "VARCHAR(255)"
+
 
 class Float:
 
     def __str__(self):
         return '<type Float>'
+
+    @staticmethod
+    def to_database(backend: str = None):
+        return "DECIMAL(10,2)"

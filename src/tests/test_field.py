@@ -39,3 +39,15 @@ async def test_convert_str_to_class():
 async def test_from_str():
     response = await Field.from_str({'field_type': '<type Integer>'})
     assert isinstance(response, Field)
+
+
+@pytest.mark.asyncio
+async def test_to_database():
+    response = Integer.to_database()
+    assert response == "INT"
+
+    response = String.to_database()
+    assert response == "VARCHAR(255)"
+
+    response = Float.to_database()
+    assert response == "DECIMAL(10,2)"
