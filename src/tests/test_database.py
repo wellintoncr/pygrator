@@ -30,3 +30,13 @@ async def test_update_migration_file():
     migration_file.seek(0)
     migration_data = json.loads(migration_file.read())
     assert len(migration_data) == 1
+
+    # Change model and it should append it to the migration file
+    model = Model({
+        "id": Field(field_type=Integer()),
+        "number": Field(field_type=Integer())
+    })
+    await database.update_migration_file(migration_file=file_name, model=model)
+    migration_file.seek(0)
+    migration_data = json.loads(migration_file.read())
+    assert len(migration_data) == 2

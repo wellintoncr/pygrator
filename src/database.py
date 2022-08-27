@@ -16,6 +16,6 @@ class Database:
                 current_content = []
 
         if not len(current_content) or current_content[-1]["model"] != await model.to_dict():
-            with open(migration_file, "a+") as file:
+            with open(migration_file, "w+") as file:
                 current_content.append({"model": await model.to_dict()})
                 json.dump(current_content, file)
