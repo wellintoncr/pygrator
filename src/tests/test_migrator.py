@@ -97,12 +97,12 @@ async def test_create_script_add_column():
     migration_file.write(bytes(json.dumps(content), 'utf-8'))
     migration_file.seek(0)
     with mock.patch("migrator.Migrator.create_table") as create_table_mock:
-        create_table_mock.return_value = "mock"
+        create_table_mock.return_value = ["mock"]
         response = await migrator.create_script(
             migration_file=migration_file.name,
             table_name="new_table"
         )
-        expected = "ALTER TABLE new_table ADD amount DECIMAL(10,2),surname VARCHAR(255);"
+        expected = "ALTER TABLE new_table ADD amount DECIMAL(10,2),surname VARCHAR(255)"
         assert response[1] == expected
 
 
@@ -143,12 +143,12 @@ async def test_create_script_remove_column():
     migration_file.write(bytes(json.dumps(content), 'utf-8'))
     migration_file.seek(0)
     with mock.patch("migrator.Migrator.create_table") as create_table_mock:
-        create_table_mock.return_value = "mock"
+        create_table_mock.return_value = ["mock"]
         response = await migrator.create_script(
             migration_file=migration_file.name,
             table_name="new_table"
         )
-        expected = "ALTER TABLE new_table DROP COLUMN amount,surname;"
+        expected = "ALTER TABLE new_table DROP COLUMN amount,surname"
         assert response[1] == expected
 
 
@@ -189,12 +189,12 @@ async def test_create_script_update_column():
     migration_file.write(bytes(json.dumps(content), 'utf-8'))
     migration_file.seek(0)
     with mock.patch("migrator.Migrator.create_table") as create_table_mock:
-        create_table_mock.return_value = "mock"
+        create_table_mock.return_value = ["mock"]
         response = await migrator.create_script(
             migration_file=migration_file.name,
             table_name="new_table"
         )
-        expected = "ALTER TABLE new_table ALTER COLUMN id VARCHAR(255),name DECIMAL(10,2);"
+        expected = "ALTER TABLE new_table ALTER COLUMN id VARCHAR(255),name DECIMAL(10,2)"
         assert response[1] == expected
 
 
@@ -230,15 +230,18 @@ async def test_create_script_all_changes():
     migration_file.write(bytes(json.dumps(content), 'utf-8'))
     migration_file.seek(0)
     with mock.patch("migrator.Migrator.create_table") as create_table_mock:
-        create_table_mock.return_value = "mock"
+        create_table_mock.return_value = ["mock"]
         response = await migrator.create_script(
             migration_file=migration_file.name,
             table_name="new_table"
         )
-        expected_add = "ALTER TABLE new_table ADD amount DECIMAL(10,2);"
-        expected_remove = "ALTER TABLE new_table DROP COLUMN name;"
-        expected_change = "ALTER TABLE new_table ALTER COLUMN id VARCHAR(255);"
-        assert response[1] == expected_add + expected_remove + expected_change
+        expected_add = "ALTER TABLE new_table ADD amount DECIMAL(10,2)"
+        expected_remove = "ALTER TABLE new_table DROP COLUMN name"
+        expected_change = "ALTER TABLE new_table ALTER COLUMN id VARCHAR(255)"
+        assert len(response) == 4, "Should have one query for creation and three for updating"
+        assert response[1] == expected_add
+        assert response[2] == expected_remove
+        assert response[3] == expected_change
 
 
 @pytest.mark.asyncio
