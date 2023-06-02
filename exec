@@ -1,12 +1,14 @@
+#!/bin/bash
+
 container_name="pygrator_application"
 
-if [ $1 == "tests" ]; then
+if [ "$1" == "tests" ]; then
     docker exec -it "$container_name" bash -c "cd pygrator/src && pytest $2"
-elif [ $1 == "lint" ]; then
+elif [ "$1" == "lint" ]; then
     docker exec -it "$container_name" bash -c "cd pygrator/src && flake8 ."
-elif [ $1 == "migrate" ]; then
+elif [ "$1" == "migrate" ]; then
     docker exec -it "$container_name" bash -c "cd pygrator/src && python main.py"
-elif [ $1 == "coverage" ]; then
+elif [ "$1" == "coverage" ]; then
     docker exec -it "$container_name" bash -c "cd pygrator/src && coverage run -m pytest tests/ && coverage report"
 else
     echo "Command not found"

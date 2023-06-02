@@ -41,11 +41,10 @@ async def test_create_script_create_table():
     content = [
         {
             "model": {
-                "id": {
-                    "field_type": "<type Integer>"
-                },
-                "name": {
-                    "field_type": "<type String>"
+                "name": "SampleTable",
+                "fields": {
+                    "id": {"column_type": "int4", "unique_id": 123},
+                    "name": {"column_type": "text", "unique_id": 456}
                 }
             }
         }
@@ -54,9 +53,9 @@ async def test_create_script_create_table():
     migration_file.seek(0)
     response = await migrator.create_script(
         migration_file=migration_file.name,
-        table_name="new_table"
+        table_name="sample_table"
     )
-    expected = ["CREATE TABLE new_table (id INT,name VARCHAR(255))"]
+    expected = ["CREATE TABLE sample_table (id int4,name text)"]
     assert response == expected
 
 
@@ -69,27 +68,21 @@ async def test_create_script_add_column():
     content = [
         {
             "model": {
-                "id": {
-                    "field_type": "<type Integer>"
-                },
-                "name": {
-                    "field_type": "<type String>"
+                "name": "SampleTable",
+                "fields": {
+                    "id": {"column_type": "int4", "unique_id": 123},
+                    "name": {"column_type": "text", "unique_id": 456}
                 }
             }
         },
         {
             "model": {
-                "id": {
-                    "field_type": "<type Integer>"
-                },
-                "name": {
-                    "field_type": "<type String>"
-                },
-                "amount": {
-                    "field_type": "<type Float>"
-                },
-                "surname": {
-                    "field_type": "<type String>"
+                "name": "SampleTable",
+                "fields": {
+                    "id": {"column_type": "int4", "unique_id": 123},
+                    "name": {"column_type": "text", "unique_id": 456},
+                    "last_name": {"column_type": "text", "unique_id": 999},
+                    "age": {"column_type": "int2", "unique_id": 222}
                 }
             }
         }
@@ -102,7 +95,7 @@ async def test_create_script_add_column():
             migration_file=migration_file.name,
             table_name="new_table"
         )
-        expected = "ALTER TABLE new_table ADD amount DECIMAL(10,2),surname VARCHAR(255)"
+        expected = "ALTER TABLE new_table ADD age int2,last_name text"
         assert response[1] == expected
 
 
@@ -115,27 +108,19 @@ async def test_create_script_remove_column():
     content = [
         {
             "model": {
-                "id": {
-                    "field_type": "<type Integer>"
-                },
-                "name": {
-                    "field_type": "<type String>"
-                },
-                "amount": {
-                    "field_type": "<type Float>"
-                },
-                "surname": {
-                    "field_type": "<type String>"
+                "name": "SampleTable",
+                "fields": {
+                    "id": {"column_type": "int4", "unique_id": 123},
+                    "name": {"column_type": "text", "unique_id": 456},
+                    "age": {"column_type": "int2", "unique_id": 222}
                 }
             }
         },
         {
             "model": {
-                "id": {
-                    "field_type": "<type Integer>"
-                },
-                "name": {
-                    "field_type": "<type String>"
+                "name": "SampleTable",
+                "fields": {
+                    "id": {"column_type": "int4", "unique_id": 123},
                 }
             }
         }
@@ -148,7 +133,7 @@ async def test_create_script_remove_column():
             migration_file=migration_file.name,
             table_name="new_table"
         )
-        expected = "ALTER TABLE new_table DROP COLUMN amount,surname"
+        expected = "ALTER TABLE new_table DROP COLUMN age,name"
         assert response[1] == expected
 
 
@@ -161,27 +146,19 @@ async def test_create_script_update_column():
     content = [
         {
             "model": {
-                "id": {
-                    "field_type": "<type Integer>"
-                },
-                "name": {
-                    "field_type": "<type String>"
-                },
-                "amount": {
-                    "field_type": "<type Float>"
+                "name": "SampleTable",
+                "fields": {
+                    "id": {"column_type": "int4", "unique_id": 123},
+                    "name": {"column_type": "varchar(255)", "unique_id": 456}
                 }
             }
         },
         {
             "model": {
-                "id": {
-                    "field_type": "<type String>"
-                },
-                "name": {
-                    "field_type": "<type Float>"
-                },
-                "amount": {
-                    "field_type": "<type Float>"
+                "name": "SampleTable",
+                "fields": {
+                    "id": {"column_type": "float4", "unique_id": 123},
+                    "name": {"column_type": "text", "unique_id": 456},
                 }
             }
         }
@@ -194,7 +171,7 @@ async def test_create_script_update_column():
             migration_file=migration_file.name,
             table_name="new_table"
         )
-        expected = "ALTER TABLE new_table ALTER COLUMN id VARCHAR(255),name DECIMAL(10,2)"
+        expected = "ALTER TABLE new_table ALTER COLUMN id float4,name text"
         assert response[1] == expected
 
 
@@ -208,21 +185,19 @@ async def test_create_script_all_changes():
     content = [
         {
             "model": {
-                "id": {
-                    "field_type": "<type Integer>"
-                },
-                "name": {
-                    "field_type": "<type String>"
+                "name": "SampleTable",
+                "fields": {
+                    "id": {"column_type": "int4", "unique_id": 123},
+                    "name": {"column_type": "varchar(255)", "unique_id": 456}
                 }
             }
         },
         {
             "model": {
-                "id": {
-                    "field_type": "<type String>"
-                },
-                "amount": {
-                    "field_type": "<type Float>"
+                "name": "SampleTable",
+                "fields": {
+                    "id": {"column_type": "float4", "unique_id": 123},
+                    "last_name": {"column_type": "text", "unique_id": 999},
                 }
             }
         }
@@ -235,9 +210,9 @@ async def test_create_script_all_changes():
             migration_file=migration_file.name,
             table_name="new_table"
         )
-        expected_add = "ALTER TABLE new_table ADD amount DECIMAL(10,2)"
+        expected_add = "ALTER TABLE new_table ADD last_name text"
         expected_remove = "ALTER TABLE new_table DROP COLUMN name"
-        expected_change = "ALTER TABLE new_table ALTER COLUMN id VARCHAR(255)"
+        expected_change = "ALTER TABLE new_table ALTER COLUMN id float4"
         assert len(response) == 4, "Should have one query for creation and three for updating"
         assert response[1] == expected_add
         assert response[2] == expected_remove
@@ -249,29 +224,33 @@ async def test_calculate_delta_new_fields():
     migrator = Migrator()
     # New fields
     old_model = {
-        "id": {
-            "field_type": "<type Integer>"
+        "fields": {
+            "id": {
+                "column_type": "int4"
+            }
         }
     }
     new_model = {
-        "id": {
-            "field_type": "<type Integer>"
-        },
-        "name": {
-            "field_type": "<type String>"
-        },
-        "amount": {
-            "field_type": "<type Float>"
+        "fields": {
+            "id": {
+                "column_type": "int4"
+            },
+            "name": {
+                "column_type": "text"
+            },
+            "amount": {
+                "column_type": "float4"
+            }
         }
     }
     response = await migrator.calculate_delta(old_model, new_model)
     expected = {
         "add": {
             "name": {
-                "field_type": "<type String>"
+                "column_type": "text"
             },
             "amount": {
-                "field_type": "<type Float>"
+                "column_type": "float4"
             }
         },
         "remove": {},
@@ -283,31 +262,35 @@ async def test_calculate_delta_new_fields():
 @pytest.mark.asyncio
 async def test_calculate_delta_delete_fields():
     migrator = Migrator()
-    # New fields
+    # Remove fields
     old_model = {
-        "id": {
-            "field_type": "<type Integer>"
-        },
-        "name": {
-            "field_type": "<type String>"
-        },
-        "amount": {
-            "field_type": "<type Float>"
+        "fields": {
+            "id": {
+                "column_type": "int4"
+            },
+            "name": {
+                "column_type": "text"
+            },
+            "amount": {
+                "column_type": "float4"
+            }
         }
     }
     new_model = {
-        "id": {
-            "field_type": "<type Integer>"
+        "fields": {
+            "id": {
+                "column_type": "int4"
+            }
         }
     }
     response = await migrator.calculate_delta(old_model, new_model)
     expected = {
         "remove": {
             "name": {
-                "field_type": "<type String>"
+                "column_type": "text"
             },
             "amount": {
-                "field_type": "<type Float>"
+                "column_type": "float4"
             }
         },
         "add": {},
@@ -319,37 +302,41 @@ async def test_calculate_delta_delete_fields():
 @pytest.mark.asyncio
 async def test_calculate_delta_update_fields():
     migrator = Migrator()
-    # New fields
+    # Update fields
     old_model = {
-        "id": {
-            "field_type": "<type Integer>"
-        },
-        "name": {
-            "field_type": "<type String>"
-        },
-        "amount": {
-            "field_type": "<type Float>"
+        "fields": {
+            "id": {
+                "column_type": "int4"
+            },
+            "name": {
+                "column_type": "text"
+            },
+            "amount": {
+                "column_type": "float4"
+            }
         }
     }
     new_model = {
-        "id": {
-            "field_type": "<type String>"
-        },
-        "name": {
-            "field_type": "<type Float>"
-        },
-        "amount": {
-            "field_type": "<type Float>"
+        "fields": {
+            "id": {
+                "column_type": "text"
+            },
+            "name": {
+                "column_type": "int4"
+            },
+            "amount": {
+                "column_type": "float4"
+            }
         }
     }
     response = await migrator.calculate_delta(old_model, new_model)
     expected = {
         "update": {
             "id": {
-                "field_type": "<type String>"
+                "column_type": "text"
             },
             "name": {
-                "field_type": "<type Float>"
+                "column_type": "int4"
             },
         },
         "add": {},

@@ -15,7 +15,7 @@ class Database:
             except Exception:
                 current_content = []
 
-        if not len(current_content) or current_content[-1]["model"] != await model.to_dict():
+        if not len(current_content) or current_content[-1]["model"] != model.as_dict():
             with open(migration_file, "w+") as file:
-                current_content.append({"model": await model.to_dict()})
+                current_content.append({"model": model.as_dict()})
                 json.dump(current_content, file)

@@ -5,3 +5,4 @@ flake8
 coverage
 pep8-naming
 flake8-import-order
+pydantic

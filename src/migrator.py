@@ -1,7 +1,5 @@
 import json
 
-from field import Field
-
 
 class Migrator:
     async def create_script(
@@ -30,9 +28,9 @@ class Migrator:
     async def create_table(self, migration_data, table_name):
         script = "CREATE TABLE {table_name} ({columns})"
         columns = []
-        for column, data in migration_data.items():
-            field = await Field.from_str(data)
-            columns.append(f"{column} {field.field_type.to_database()}")
+        for column, data in migration_data["fields"].items():
+            field = data["column_type"]
+            columns.append(f"{column} {field}")
         script = script.format(table_name=table_name, columns=",".join(columns))
         return [script]
 
@@ -45,8 +43,8 @@ class Migrator:
         if delta["add"]:
             columns = []
             for column, data in delta["add"].items():
-                field = await Field.from_str(data)
-                columns.append(f"{column} {field.field_type.to_database()}")
+                field = data["column_type"]
+                columns.append(f"{column} {field}")
             columns.sort(key=lambda item: item)
             script_to_add = "ALTER TABLE {table_name} ADD {columns}"
             script_to_add = script_to_add.format(table_name=table_name, columns=",".join(columns))
@@ -61,8 +59,8 @@ class Migrator:
         if delta["update"]:
             columns = []
             for column, data in delta["update"].items():
-                field = await Field.from_str(data)
-                columns.append(f"{column} {field.field_type.to_database()}")
+                field = data["column_type"]
+                columns.append(f"{column} {field}")
             columns.sort(key=lambda item: item)
             script_to_update = "ALTER TABLE {table_name} ALTER COLUMN {columns}"
             script_to_update = script_to_update.format(
@@ -74,8 +72,8 @@ class Migrator:
         return script
 
     async def calculate_delta(self, old_model, new_model):
-        old_fields = set(old_model.keys())
-        new_fields = set(new_model.keys())
+        old_fields = old_model["fields"]
+        new_fields = new_model["fields"]
         output = {
             "add": {},
             "remove": {},
@@ -83,10 +81,10 @@ class Migrator:
         }
         for field in new_fields:
             if field not in old_fields:
-                output["add"][field] = new_model[field]
-            if field in old_fields and new_model[field] != old_model[field]:
-                output["update"][field] = new_model[field]
+                output["add"][field] = new_fields[field]
+            if field in old_fields and new_fields[field] != old_fields[field]:
+                output["update"][field] = new_fields[field]
         for field in old_fields:
             if field not in new_fields:
-                output["remove"][field] = old_model[field]
+                output["remove"][field] = old_fields[field]
         return output
