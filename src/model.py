@@ -1,7 +1,7 @@
-from pydantic import BaseModel, Extra
+from pydantic import BaseModel
 
 
-class Model(BaseModel, extra=Extra.allow):
+class Model(BaseModel):
 
     @classmethod
     def as_dict(cls, database_type: str = "postgresql"):
@@ -15,6 +15,7 @@ class Model(BaseModel, extra=Extra.allow):
         fields = cls.__fields__
         output = {
             "name": class_data["title"],
+            "model_id": class_data.get("class_id"),
             "fields": {
                 k: {
                     "unique_id": v.get("unique_id"),
